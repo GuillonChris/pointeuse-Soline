@@ -8,37 +8,36 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            /* Dégradé girly rose poudré */
             background: linear-gradient(135deg, #fce3ec 0%, #ffe8e8 50%, #f3e7e9 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         .glass {
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.65);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 8px 32px 0 rgba(236, 172, 194, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            box-shadow: 0 8px 32px 0 rgba(236, 172, 194, 0.25);
         }
         .btn-pink {
             background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
             color: #554348;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
         }
         .btn-pink:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4);
         }
         .btn-pink:disabled {
-            opacity: 0.5;
+            opacity: 0.45;
             cursor: not-allowed;
-            filter: grayscale(0.5);
+            filter: grayscale(0.4);
         }
         .toast {
             position: fixed;
             top: 20px;
-            right: -300px;
-            transition: right 0.4s ease-in-out;
+            right: -320px;
+            transition: right 0.35s ease-in-out;
             z-index: 50;
         }
         .toast.show {
@@ -48,231 +47,262 @@
 </head>
 <body class="text-gray-800 pb-20">
 
-    <!-- Notifications stylisées -->
-    <div id="toast" class="toast glass rounded-lg px-6 py-3 border-l-4 border-pink-400 flex items-center gap-3">
-        <i class="fas fa-heart text-pink-400"></i>
+    <div id="toast" class="toast glass rounded-xl px-5 py-3 border-l-4 border-pink-400 flex items-center gap-3 shadow-lg">
+        <i class="fas fa-heart text-pink-500"></i>
         <span id="toast-msg" class="font-medium text-sm text-gray-700">Message</span>
     </div>
 
-    <div class="max-w-md mx-auto pt-8 px-4">
+    <div class="max-w-md mx-auto pt-6 px-4">
         
-        <!-- En-tête -->
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-400 mb-2">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-400 mb-1">
                 Les Heures de Soline 🌸
             </h1>
-            <p class="text-sm text-gray-500">Gère ton temps avec élégance</p>
+            <p class="text-xs text-gray-500 tracking-wide uppercase">Gère ton temps avec élégance</p>
         </div>
 
-        <!-- Onglets -->
-        <div class="flex rounded-full glass p-1 mb-6">
-            <button onclick="switchTab('pointeuse')" id="tab-pointeuse" class="flex-1 py-2 rounded-full text-sm font-semibold bg-white/80 shadow text-pink-500 transition-all">Pointeuse</button>
+        <div class="flex rounded-full glass p-1 mb-5">
+            <button onclick="switchTab('pointeuse')" id="tab-pointeuse" class="flex-1 py-2 rounded-full text-sm font-semibold bg-white/90 shadow text-pink-500 transition-all">Pointeuse</button>
             <button onclick="switchTab('rapports')" id="tab-rapports" class="flex-1 py-2 rounded-full text-sm font-semibold text-gray-500 hover:text-pink-400 transition-all">Rapports</button>
         </div>
 
-        <!-- ONGLET : POINTEUSE -->
-        <div id="view-pointeuse" class="space-y-6">
-            <div class="glass rounded-2xl p-6">
-                <div class="text-center mb-6">
-                    <div id="current-date" class="text-gray-500 text-sm mb-1">...</div>
+        <!-- ONGLET POINTEUSE -->
+        <div id="view-pointeuse" class="space-y-5">
+            <div class="glass rounded-2xl p-5">
+                <div class="text-center mb-5">
+                    <div id="current-date" class="text-gray-500 text-xs capitalize mb-1">...</div>
                     <div id="current-time" class="text-4xl font-light text-pink-600 tracking-wider">00:00:00</div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <button id="btn-arrivee" onclick="action('arrivee')" class="btn-pink rounded-xl py-4 font-semibold flex flex-col items-center gap-2">
-                        <i class="fas fa-sign-in-alt text-xl"></i> Arrivée
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <button id="btn-arrivee" onclick="actionInstant('Arrivée')" class="btn-pink rounded-xl py-3 font-semibold flex flex-col items-center gap-1">
+                        <i class="fas fa-sign-in-alt text-lg"></i> Arrivée
                     </button>
-                    <button id="btn-pause" onclick="action('pause')" class="btn-pink rounded-xl py-4 font-semibold flex flex-col items-center gap-2" disabled>
-                        <i class="fas fa-coffee text-xl"></i> Pause
+                    <button id="btn-pause" onclick="actionInstant('Pause')" class="btn-pink rounded-xl py-3 font-semibold flex flex-col items-center gap-1" disabled>
+                        <i class="fas fa-coffee text-lg"></i> Pause
                     </button>
-                    <button id="btn-reprise" onclick="action('reprise')" class="btn-pink rounded-xl py-4 font-semibold flex flex-col items-center gap-2" disabled>
-                        <i class="fas fa-play text-xl"></i> Reprise
+                    <button id="btn-reprise" onclick="actionInstant('Reprise')" class="btn-pink rounded-xl py-3 font-semibold flex flex-col items-center gap-1" disabled>
+                        <i class="fas fa-play text-lg"></i> Reprise
                     </button>
-                    <button id="btn-depart" onclick="action('depart')" class="btn-pink rounded-xl py-4 font-semibold flex flex-col items-center gap-2" disabled>
-                        <i class="fas fa-sign-out-alt text-xl"></i> Départ
+                    <button id="btn-depart" onclick="actionInstant('Départ')" class="btn-pink rounded-xl py-3 font-semibold flex flex-col items-center gap-1" disabled>
+                        <i class="fas fa-sign-out-alt text-lg"></i> Départ
                     </button>
                 </div>
+
+                <div class="border-t border-pink-200/60 pt-3">
+                    <button onclick="toggleManualForm()" class="w-full text-xs text-pink-600 font-semibold py-1.5 flex items-center justify-center gap-1 hover:text-pink-700 transition">
+                        <i class="fas fa-edit"></i> <span id="manual-toggle-text">Oubli ? Ajouter une heure manuelle</span>
+                    </button>
+
+                    <div id="manual-form" class="hidden mt-3 p-3 bg-white/70 rounded-xl border border-pink-100 space-y-2.5">
+                        <div class="text-xs font-semibold text-gray-600">Rattraper un pointage oublié :</div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <select id="manual-type" class="text-xs p-2 rounded-lg border border-pink-200 bg-white focus:outline-none focus:ring-1 focus:ring-pink-400">
+                                <option value="Arrivée">Arrivée</option>
+                                <option value="Pause">Pause</option>
+                                <option value="Reprise">Reprise</option>
+                                <option value="Départ">Départ</option>
+                            </select>
+                            <input type="time" id="manual-time" class="text-xs p-2 rounded-lg border border-pink-200 bg-white focus:outline-none focus:ring-1 focus:ring-pink-400">
+                        </div>
+                        <button onclick="addManualEntry()" class="w-full bg-pink-400 hover:bg-pink-500 text-white text-xs font-bold py-2 rounded-lg transition">
+                            Valider cette heure
+                        </button>
+                    </div>
+                </div>
                 
-                <button id="btn-fin" onclick="finJournee()" class="w-full bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-xl py-4 font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2" disabled>
+                <button id="btn-fin" onclick="finJournee()" class="w-full mt-4 bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-xl py-3 font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2" disabled>
                     <i class="fas fa-check-circle"></i> Clôturer ma journée
                 </button>
             </div>
 
-            <div class="glass rounded-2xl p-6">
-                <h3 class="font-semibold text-gray-700 mb-4 flex items-center gap-2">
+            <div class="glass rounded-2xl p-5">
+                <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2 text-sm">
                     <i class="fas fa-history text-pink-400"></i> Ton historique d'aujourd'hui
                 </h3>
-                <div id="daily-logs" class="space-y-3 max-h-48 overflow-y-auto pr-2 text-sm">
-                    <div class="text-gray-400 italic text-center py-2">Aucun pointage pour le moment.</div>
-                </div>
+                <div id="daily-logs" class="space-y-2 max-h-52 overflow-y-auto pr-1 text-sm"></div>
             </div>
         </div>
 
-        <!-- ONGLET : RAPPORTS -->
-        <div id="view-rapports" class="hidden space-y-6">
-            <div class="glass rounded-2xl p-6">
-                <h2 class="text-xl font-bold text-gray-700 mb-4">Ta Semaine en Cours</h2>
+        <!-- ONGLET RAPPORTS -->
+        <div id="view-rapports" class="hidden space-y-5">
+            <div class="glass rounded-2xl p-5">
+                <h2 class="text-lg font-bold text-gray-700 mb-3">Ta Semaine en Cours</h2>
                 
-                <!-- Synthèse Semaine avec Majoration -->
-                <div class="bg-white/50 rounded-xl p-4 mb-4 border border-pink-100">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-sm font-medium text-gray-600">Total effectué</span>
-                        <span id="week-total" class="font-bold text-pink-600 text-lg">0h 00</span>
+                <div class="bg-white/60 rounded-xl p-4 mb-4 border border-pink-100">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-xs font-medium text-gray-600">Total effectué</span>
+                        <span id="week-total" class="font-bold text-pink-600 text-base">0h 00</span>
                     </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+                    <div class="w-full bg-gray-200 rounded-full h-2 mb-3">
                         <div id="week-progress" class="bg-gradient-to-r from-pink-400 to-purple-400 h-2 rounded-full" style="width: 0%"></div>
                     </div>
                     
-                    <div class="space-y-2 text-sm">
+                    <div class="space-y-1.5 text-xs">
                         <div class="flex justify-between text-gray-600">
                             <span>Base normale (jusqu'à 35h)</span>
-                            <span id="week-normal" class="font-medium">0h 00</span>
+                            <span id="week-normal" class="font-semibold">0h 00</span>
                         </div>
-                        <div class="flex justify-between text-pink-500">
-                            <span>Majoration 25% (36h à 43h)</span>
-                            <span id="week-25" class="font-medium">0h 00</span>
+                        <div class="flex justify-between text-pink-600 font-medium">
+                            <span>Majoration 25 % (36e à 43e h)</span>
+                            <span id="week-25" class="font-bold">0h 00</span>
                         </div>
-                        <div class="flex justify-between text-purple-500">
-                            <span>Majoration 50% (44h et +)</span>
-                            <span id="week-50" class="font-medium">0h 00</span>
+                        <div class="flex justify-between text-purple-600 font-medium">
+                            <span>Majoration 50 % (dès la 44e h)</span>
+                            <span id="week-50" class="font-bold">0h 00</span>
                         </div>
                     </div>
                 </div>
 
-                <h3 class="font-semibold text-gray-700 mb-3">Détail par jour</h3>
-                <div id="history-list" class="space-y-3 max-h-64 overflow-y-auto">
-                    <!-- Généré en JS -->
+                <!-- BOUTONS D'EXPORT EXCEL -->
+                <div class="flex gap-2 mb-4">
+                    <button onclick="exportToExcel('semaine')" class="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-2 rounded-lg transition shadow flex items-center justify-center gap-1">
+                        <i class="fas fa-file-excel"></i> Export Semaine
+                    </button>
+                    <button onclick="exportToExcel('mois')" class="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 rounded-lg transition shadow flex items-center justify-center gap-1">
+                        <i class="fas fa-file-excel"></i> Export Mois
+                    </button>
                 </div>
+
+                <h3 class="font-semibold text-gray-700 mb-2 text-sm">Détail par jour</h3>
+                <div id="history-list" class="space-y-2.5 max-h-64 overflow-y-auto"></div>
             </div>
         </div>
 
     </div>
 
     <script>
-        // === SÉCURITÉ LOCALSTORAGE (Anti-Crash) ===
         const storage = {
             get: (key) => {
                 try { return JSON.parse(localStorage.getItem(key)); }
-                catch (e) { console.warn("Mémoire locale inaccessible", e); return null; }
+                catch (e) { return null; }
             },
-            set: (key, value) => {
-                try { localStorage.setItem(key, JSON.stringify(value)); }
-                catch (e) { console.warn("Impossible de sauvegarder", e); }
+            set: (key, val) => {
+                try { localStorage.setItem(key, JSON.stringify(val)); }
+                catch (e) {}
             }
         };
 
-        // === ÉTAT DE L'APPLICATION ===
-        let state = storage.get('soline_state') || {
-            status: 'attente', 
-            logs: [],
-            currentDateStr: new Date().toLocaleDateString('fr-FR')
-        };
+        let state = storage.get('soline_state') || { logs: [], currentDateStr: new Date().toLocaleDateString('fr-FR') };
         let historyData = storage.get('soline_history') || [];
 
-        // === INITIALISATION ===
         window.addEventListener('DOMContentLoaded', () => {
             checkMidnightReset();
             updateClock();
             setInterval(updateClock, 1000);
-            setInterval(checkMidnightReset, 60000); // Vérifie chaque minute
-            
+            setInterval(checkMidnightReset, 60000);
             updateUI();
-            showToast("Coucou Soline ! Prête pour ta journée ? 💕");
         });
 
-        // === HORLOGE ===
         function updateClock() {
             const now = new Date();
             document.getElementById('current-time').innerText = now.toLocaleTimeString('fr-FR');
             document.getElementById('current-date').innerText = now.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         }
 
-        // === CHANGEMENT DE JOUR AUTO ===
         function checkMidnightReset() {
             const todayStr = new Date().toLocaleDateString('fr-FR');
             if (state.currentDateStr !== todayStr) {
-                if (state.logs.length > 0 && state.status !== 'termine') {
-                    if (state.status === 'travail') {
-                        state.logs.push({ action: 'Départ automatique', time: new Date(state.currentDateStr.split('/').reverse().join('-') + 'T23:59:59').getTime() });
-                    }
-                    saveToHistory(state.currentDateStr, state.logs);
-                }
-                state = { status: 'attente', logs: [], currentDateStr: todayStr };
-                saveState();
-                updateUI();
-                showToast("Nouvelle journée ! L'ancienne a été sauvegardée. 🌸");
+                if (state.logs.length > 0) { saveToHistory(state.currentDateStr, state.logs); }
+                state = { logs: [], currentDateStr: todayStr };
+                saveState(); updateUI();
+                showToast("Nouvelle journée entamée ! 🌸");
             }
         }
 
-        // === POINTEUSE ===
-        function action(type) {
-            const now = new Date().getTime();
-            let actionName = '';
-
-            switch(type) {
-                case 'arrivee': state.status = 'travail'; actionName = 'Arrivée'; break;
-                case 'pause': state.status = 'pause'; actionName = 'Pause'; break;
-                case 'reprise': state.status = 'travail'; actionName = 'Reprise'; break;
-                case 'depart': state.status = 'attente'; actionName = 'Départ'; break;
+        function toggleManualForm() {
+            const form = document.getElementById('manual-form');
+            const txt = document.getElementById('manual-toggle-text');
+            const isHidden = form.classList.contains('hidden');
+            form.classList.toggle('hidden');
+            txt.innerText = isHidden ? "Fermer l'ajout manuel" : "Oubli ? Ajouter une heure manuelle";
+            if (isHidden) {
+                const now = new Date();
+                document.getElementById('manual-time').value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
             }
+        }
 
-            state.logs.push({ action: actionName, time: now });
-            saveState();
-            updateUI();
-            showToast(`C'est noté : ${actionName} à ${new Date(now).toLocaleTimeString('fr-FR').slice(0,5)}`);
+        function actionInstant(actionName) {
+            pushLog(actionName, new Date().getTime());
+            showToast(`${actionName} enregistrée !`);
+        }
+
+        function addManualEntry() {
+            const type = document.getElementById('manual-type').value;
+            const timeVal = document.getElementById('manual-time').value;
+            if (!timeVal) { showToast("Indique une heure valide."); return; }
+
+            const [hours, minutes] = timeVal.split(':').map(Number);
+            const entryDate = new Date();
+            entryDate.setHours(hours, minutes, 0, 0);
+
+            pushLog(type, entryDate.getTime());
+            toggleManualForm();
+            showToast(`${type} ajoutée à ${timeVal} 🌸`);
+        }
+
+        function pushLog(actionName, timestamp) {
+            state.logs.push({ id: Date.now() + Math.random(), action: actionName, time: timestamp });
+            state.logs.sort((a, b) => a.time - b.time);
+            saveState(); updateUI();
+        }
+
+        function deleteLog(id) {
+            state.logs = state.logs.filter(l => l.id !== id);
+            saveState(); updateUI();
+            showToast("Pointage supprimé.");
+        }
+
+        function getEffectiveStatus() {
+            if (state.logs.length === 0) return 'attente';
+            const last = state.logs[state.logs.length - 1];
+            if (last.action === 'Arrivée' || last.action === 'Reprise') return 'travail';
+            if (last.action === 'Pause') return 'pause';
+            if (last.action === 'Départ') return 'attente';
+            return 'attente';
         }
 
         function finJournee() {
-            if (state.status === 'travail') {
-                showToast("⚠️ Tu dois d'abord cliquer sur Départ avant de clôturer !");
-                return;
+            const currentStatus = getEffectiveStatus();
+            if (currentStatus === 'travail') {
+                showToast("⚠️ Pense à marquer ton Départ avant de clôturer !"); return;
             }
             if (state.logs.length === 0) return;
 
             saveToHistory(state.currentDateStr, state.logs);
-            state = { status: 'termine', logs: [], currentDateStr: new Date().toLocaleDateString('fr-FR') };
-            saveState();
-            updateUI();
-            showToast("🌟 Journée clôturée avec succès !");
-            switchTab('rapports'); 
+            state.logs = []; saveState(); updateUI();
+            showToast("Journée clôturée avec succès ! ✨");
+            switchTab('rapports');
         }
 
-        // === CALCULS DU TEMPS ===
         function calculateTotalMs(logs) {
-            let total = 0;
-            let lastIn = null;
-
+            let total = 0; let lastIn = null;
             logs.forEach(log => {
                 if (log.action === 'Arrivée' || log.action === 'Reprise') {
                     lastIn = log.time;
-                } else if ((log.action === 'Pause' || log.action === 'Départ' || log.action === 'Départ automatique') && lastIn) {
-                    total += (log.time - lastIn);
+                } else if ((log.action === 'Pause' || log.action === 'Départ') && lastIn) {
+                    total += Math.max(0, log.time - lastIn);
                     lastIn = null;
                 }
             });
-            if (lastIn && state.currentDateStr === new Date().toLocaleDateString('fr-FR') && state.status === 'travail') {
-                total += (new Date().getTime() - lastIn);
-            }
+            const status = getEffectiveStatus();
+            if (lastIn && status === 'travail') { total += Math.max(0, new Date().getTime() - lastIn); }
             return total;
         }
 
         function formatTime(ms) {
-            const totalMinutes = Math.floor(ms / 60000);
+            const totalMinutes = Math.floor(Math.max(0, ms) / 60000);
             const hours = Math.floor(totalMinutes / 60);
             const minutes = totalMinutes % 60;
             return `${hours}h ${minutes.toString().padStart(2, '0')}`;
         }
 
-        // === GESTION MÉMOIRE ===
-        function saveState() {
-            storage.set('soline_state', state);
-        }
+        function saveState() { storage.set('soline_state', state); }
 
         function saveToHistory(dateStr, logs) {
             const ms = calculateTotalMs(logs);
             historyData = historyData.filter(h => h.date !== dateStr);
-            historyData.push({ date: dateStr, logs: logs, totalMs: ms });
-            
+            historyData.push({ date: dateStr, logs: [...logs], totalMs: ms });
             historyData.sort((a, b) => {
                 const [da, ma, ya] = a.date.split('/');
                 const [db, mb, yb] = b.date.split('/');
@@ -281,46 +311,43 @@
             storage.set('soline_history', historyData);
         }
 
-        // === MISE À JOUR VISUELLE ===
         function updateUI() {
-            const btnArr = document.getElementById('btn-arrivee');
-            const btnPau = document.getElementById('btn-pause');
-            const btnRep = document.getElementById('btn-reprise');
-            const btnDep = document.getElementById('btn-depart');
+            const status = getEffectiveStatus();
+            const btnArr = document.getElementById('btn-arrivee'), btnPau = document.getElementById('btn-pause');
+            const btnRep = document.getElementById('btn-reprise'), btnDep = document.getElementById('btn-depart');
             const btnFin = document.getElementById('btn-fin');
 
             btnArr.disabled = true; btnPau.disabled = true; btnRep.disabled = true; btnDep.disabled = true; btnFin.disabled = true;
 
-            if (state.status === 'attente') {
+            if (status === 'attente') {
                 btnArr.disabled = false;
                 if (state.logs.length > 0) btnFin.disabled = false;
-            } else if (state.status === 'travail') {
+            } else if (status === 'travail') {
                 btnPau.disabled = false; btnDep.disabled = false;
-            } else if (state.status === 'pause') {
-                btnRep.disabled = false;
-            }
+            } else if (status === 'pause') { btnRep.disabled = false; }
 
             const logsDiv = document.getElementById('daily-logs');
             if (state.logs.length === 0) {
-                logsDiv.innerHTML = `<div class="text-gray-400 italic text-center py-2">Aucun pointage pour le moment.</div>`;
+                logsDiv.innerHTML = `<div class="text-gray-400 italic text-center py-3 text-xs">Aucun pointage aujourd'hui.</div>`;
             } else {
                 logsDiv.innerHTML = state.logs.map(l => {
-                    const timeStr = new Date(l.time).toLocaleTimeString('fr-FR').slice(0, 5);
-                    const icon = l.action.includes('Arrivée') || l.action.includes('Reprise') ? 'fa-arrow-right text-green-500' : 'fa-arrow-left text-pink-500';
-                    return `<div class="flex justify-between items-center bg-white/40 p-2 rounded mb-2">
-                        <span><i class="fas ${icon} mr-2 w-4"></i>${l.action}</span>
-                        <span class="font-mono bg-white/60 px-2 py-1 rounded">${timeStr}</span>
+                    const d = new Date(l.time);
+                    const timeStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                    const icon = (l.action === 'Arrivée' || l.action === 'Reprise') ? 'fa-arrow-right text-emerald-500' : 'fa-arrow-left text-pink-500';
+                    return `<div class="flex justify-between items-center bg-white/50 px-3 py-2 rounded-xl border border-white">
+                        <span class="flex items-center gap-2"><i class="fas ${icon}"></i> <strong>${l.action}</strong></span>
+                        <div class="flex items-center gap-3">
+                            <span class="font-mono bg-white/80 px-2 py-0.5 rounded text-xs font-semibold">${timeStr}</span>
+                            <button onclick="deleteLog(${l.id})" class="text-gray-400 hover:text-red-500 transition" title="Supprimer ce pointage"><i class="fas fa-trash-alt text-xs"></i></button>
+                        </div>
                     </div>`;
                 }).join('');
-                
-                const totalEnCoursMs = calculateTotalMs(state.logs);
-                logsDiv.innerHTML += `<div class="mt-3 text-center font-bold text-pink-600 bg-white/50 p-2 rounded-lg">Total aujourd'hui : ${formatTime(totalEnCoursMs)}</div>`;
+                const totalMs = calculateTotalMs(state.logs);
+                logsDiv.innerHTML += `<div class="mt-2 text-center font-bold text-pink-600 bg-white/60 py-2 rounded-xl text-xs">Temps calculé aujourd'hui : ${formatTime(totalMs)}</div>`;
             }
-
             renderHistory();
         }
 
-        // === RAPPORTS ===
         function getWeekNumber(d) {
             d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
             d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
@@ -330,65 +357,29 @@
         function renderHistory() {
             const list = document.getElementById('history-list');
             if (historyData.length === 0) {
-                list.innerHTML = `<div class="text-gray-400 italic text-center py-4">Historique vide.</div>`;
-                return;
+                list.innerHTML = `<div class="text-gray-400 italic text-center py-4 text-xs">Aucune journée enregistrée.</div>`; return;
             }
 
-            let weekTotalMs = 0;
-            const currentWeek = getWeekNumber(new Date());
-            
+            let weekTotalMs = 0; const currentWeek = getWeekNumber(new Date());
+
             list.innerHTML = historyData.map(item => {
                 const [d, m, y] = item.date.split('/');
                 const itemDate = new Date(y, m-1, d);
-                if (getWeekNumber(itemDate) === currentWeek) weekTotalMs += item.totalMs;
+                if (getWeekNumber(itemDate) === currentWeek && itemDate.getFullYear() === new Date().getFullYear()) { weekTotalMs += item.totalMs; }
 
-                return `<div class="bg-white/60 p-3 rounded-xl shadow-sm border border-white flex justify-between items-center mb-3">
-                    <div>
-                        <div class="font-bold text-gray-700">${item.date}</div>
-                    </div>
-                    <div class="font-mono text-pink-600 font-bold bg-pink-100 px-3 py-1 rounded-lg">
-                        ${formatTime(item.totalMs)}
-                    </div>
+                return `<div class="bg-white/65 p-3 rounded-xl border border-white flex justify-between items-center">
+                    <span class="font-bold text-gray-700 text-xs">${item.date}</span>
+                    <span class="font-mono text-pink-600 font-bold bg-pink-100/70 px-2.5 py-1 rounded-lg text-xs">${formatTime(item.totalMs)}</span>
                 </div>`;
             }).join('');
 
             const totalHours = weekTotalMs / 3600000;
-            let normalHours = Math.min(totalHours, 35);
-            let hours25 = totalHours > 35 ? Math.min(totalHours - 35, 8) : 0;
-            let hours50 = totalHours > 43 ? totalHours - 43 : 0;
+            const normalHours = Math.min(totalHours, 35);
+            const hours25 = totalHours > 35 ? Math.min(totalHours - 35, 8) : 0;
+            const hours50 = totalHours > 43 ? totalHours - 43 : 0;
 
             document.getElementById('week-total').innerText = formatTime(weekTotalMs);
             document.getElementById('week-normal').innerText = formatTime(normalHours * 3600000);
             document.getElementById('week-25').innerText = formatTime(hours25 * 3600000);
             document.getElementById('week-50').innerText = formatTime(hours50 * 3600000);
-            document.getElementById('week-progress').style.width = `${Math.min((totalHours / 45) * 100, 100)}%`;
-        }
-
-        function switchTab(tab) {
-            const pView = document.getElementById('view-pointeuse');
-            const rView = document.getElementById('view-rapports');
-            const pTab = document.getElementById('tab-pointeuse');
-            const rTab = document.getElementById('tab-rapports');
-            
-            const activeClass = "flex-1 py-2 rounded-full text-sm font-semibold bg-white/80 shadow text-pink-500 transition-all";
-            const inactiveClass = "flex-1 py-2 rounded-full text-sm font-semibold text-gray-500 hover:text-pink-400 transition-all";
-
-            if (tab === 'pointeuse') {
-                pView.classList.remove('hidden'); rView.classList.add('hidden');
-                pTab.className = activeClass; rTab.className = inactiveClass;
-            } else {
-                pView.classList.add('hidden'); rView.classList.remove('hidden');
-                rTab.className = activeClass; pTab.className = inactiveClass;
-                renderHistory();
-            }
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-    </script>
-</body>
-</html>
+            docu
