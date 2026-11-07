@@ -72,7 +72,7 @@
         <!-- ONGLET POINTEUSE ET ÉDITION -->
         <div id="view-pointeuse" class="space-y-4">
             
-            <!-- SÉLECTION DIRECTE DU JOUR -->
+            <!-- SÉLECTION DU JOUR -->
             <div class="glass rounded-2xl p-4">
                 <div class="flex items-center justify-between gap-2">
                     <label for="date-selector" class="text-xs font-bold text-gray-700 flex items-center gap-1.5">
@@ -86,7 +86,6 @@
                     </div>
                 </div>
 
-                <!-- Bandeau info si date passée -->
                 <div id="past-date-alert" class="hidden mt-3 p-2.5 bg-pink-50 border border-pink-200 rounded-xl text-xs text-pink-700 flex items-center justify-between">
                     <span><i class="fas fa-pen-alt mr-1"></i> Correction du jour : <strong id="past-date-label"></strong></span>
                     <button type="button" onclick="setTodayDate()" class="text-[11px] underline font-bold hover:text-pink-900">Revenir à aujourd'hui</button>
@@ -123,7 +122,7 @@
                     </button>
                 </div>
 
-                <!-- 2. BOUTON SPÉCIFIQUE : CLÔTURER LA JOURNÉE MODIFIÉE (DATE PASSÉE) -->
+                <!-- 2. BOUTON CLÔTURE POUR DATE MODIFIÉE -->
                 <div id="past-date-actions-block" class="hidden mb-4">
                     <button type="button" onclick="validerJourneeModifiee()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl py-3.5 font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
                         <i class="fas fa-check-double text-base"></i> Clôturer la journée modifiée
@@ -144,18 +143,18 @@
                         </select>
                         <input type="time" id="manual-time-input" value="08:30" class="text-xs p-2 rounded-xl border border-pink-200 bg-white">
                     </div>
-                    <button type="button" onclick="submitManualEntry()" class="w-full bg-pink-400 hover:bg-pink-500 text-white text-xs font-bold py-2.5 rounded-xl transition shadow">
-                        Valider cette heure pour le <span id="btn-target-date-label"></span>
+                    <button type="button" id="btn-manual-submit" onclick="submitManualEntry()" class="w-full bg-pink-400 hover:bg-pink-500 text-white text-xs font-bold py-2.5 rounded-xl transition shadow">
+                        Valider cette heure pour aujourd'hui
                     </button>
                 </div>
 
             </div>
 
-            <!-- POINTAGES ET CUMUL DU JOUR SÉLECTIONNÉ -->
+            <!-- POINTAGES DU JOUR CHOISI -->
             <div class="glass rounded-2xl p-5">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="font-semibold text-gray-700 text-sm flex items-center gap-1.5">
-                        <i class="fas fa-list text-pink-400"></i> Pointages du <span id="logs-date-label" class="text-pink-600 font-bold ml-1"></span>
+                        <i class="fas fa-list text-pink-400"></i> <span id="logs-date-label">Pointages d'aujourd'hui</span>
                     </h3>
                     <span id="selected-day-total" class="font-mono text-pink-600 font-bold bg-pink-100/80 px-2.5 py-1 rounded-lg text-xs">0h 00</span>
                 </div>
@@ -221,7 +220,6 @@
     </div>
 
     <script>
-        // --- UTILITAIRES DE DATE ---
         function pad2(n) { return String(n).padStart(2, '0'); }
 
         function getTodayIso() {
@@ -251,7 +249,6 @@
             return str;
         }
 
-        // --- STOCKAGE LOCAL ---
         function getStorage(key) {
             try {
                 const val = localStorage.getItem(key);
@@ -272,14 +269,12 @@
         let rawHistory = getStorage('soline_history');
         let historyData = Array.isArray(rawHistory) ? rawHistory : [];
 
-        // Harmonisation
         historyData.forEach(item => {
             if (item && item.date) item.date = normalizeFrDate(item.date);
         });
 
         let activeDateIso = getTodayIso();
 
-        // --- HORLOGE ---
         function runClock() {
             const now = new Date();
             const timeEl = document.getElementById('current-time-display');
@@ -297,7 +292,6 @@
         runClock();
         setInterval(runClock, 1000);
 
-        // --- SÉLECTION DE DATE ---
         function onDateSelected(isoValue) {
             if (!isoValue) return;
             activeDateIso = isoValue;
@@ -319,7 +313,6 @@
             showToast(`Modification du ${frDate} activée ✏️`);
         }
 
-        // --- ACTIONS DU JOUR (DIRECT) ---
         function getStatusToday() {
             if (!state.logs || state.logs.length === 0) return 'attente';
             const last = state.logs[state.logs.length - 1];
@@ -355,7 +348,6 @@
             switchTab('rapports');
         }
 
-        // --- ACTION : CLÔTURER LA JOURNÉE MODIFIÉE ---
         function validerJourneeModifiee() {
             const targetFr = isoToFr(activeDateIso);
             const dayEntry = historyData.find(h => h && h.date === targetFr);
@@ -366,28 +358,24 @@
                 return;
             }
 
-            // Vérification de la cohérence : l'employée ne doit pas être laissée en poste sans départ
             const last = logs[logs.length - 1];
             if (last && (last.action === 'Arrivée' || last.action === 'Reprise')) {
                 showToast("⚠️ N'oublie pas d'ajouter une heure de Départ avant de clôturer !");
                 return;
             }
 
-            // Calcul final et sauvegarde ferme
             dayEntry.totalMs = calculateTotalMs(logs, false);
             setStorage('soline_history', historyData);
 
             updateUI();
             showToast(`Journée du ${targetFr} clôturée avec succès ! ✨`);
 
-            // Retour automatique et affichage des bilans
             setTimeout(() => {
                 setTodayDate();
                 switchTab('rapports');
             }, 500);
         }
 
-        // --- AJOUT MANUEL D'UN POINTAGE ---
         function submitManualEntry() {
             const type = document.getElementById('manual-type-input').value;
             const timeVal = document.getElementById('manual-time-input').value;
@@ -422,7 +410,7 @@
             }
 
             updateUI();
-            showToast(`${type} ajoutée à ${timeVal} pour le ${targetFr} 🌸`);
+            showToast(`${type} ajoutée à ${timeVal} 🌸`);
         }
 
         function deleteLogFromActiveDay(logId) {
@@ -444,7 +432,6 @@
             showToast("Pointage supprimé.");
         }
 
-        // --- CALCULS DU TEMPS ---
         function calculateTotalMs(logs, isLiveToday = false) {
             if (!Array.isArray(logs) || logs.length === 0) return 0;
             let total = 0;
@@ -489,7 +476,6 @@
             setStorage('soline_history', historyData);
         }
 
-        // --- AFFICHAGE DE L'INTERFACE ---
         function updateUI() {
             const todayIso = getTodayIso();
             const isToday = (activeDateIso === todayIso);
@@ -500,13 +486,24 @@
 
             const pastAlert = document.getElementById('past-date-alert');
             const pastLabel = document.getElementById('past-date-label');
-            const targetBtnLabel = document.getElementById('btn-target-date-label');
-            const logsDateLabel = document.getElementById('logs-date-label');
             const todayActions = document.getElementById('today-actions-block');
             const pastActions = document.getElementById('past-date-actions-block');
+            const btnManualSubmit = document.getElementById('btn-manual-submit');
+            const logsDateLabel = document.getElementById('logs-date-label');
 
-            if (targetBtnLabel) targetBtnLabel.textContent = isToday ? "aujourd'hui" : activeFr;
-            if (logsDateLabel) logsDateLabel.textContent = isToday ? "aujourd'hui" : activeFr;
+            // Intitulé du bouton d'ajout manuel
+            if (btnManualSubmit) {
+                btnManualSubmit.textContent = isToday 
+                    ? "Valider cette heure pour aujourd'hui" 
+                    : `Valider cette heure pour le ${activeFr}`;
+            }
+
+            // Intitulé de la liste des pointages
+            if (logsDateLabel) {
+                logsDateLabel.innerHTML = isToday 
+                    ? "Pointages <span class='text-pink-600 font-bold ml-1'>d'aujourd'hui</span>" 
+                    : `Pointages du <span class='text-pink-600 font-bold ml-1'>${activeFr}</span>`;
+            }
 
             if (isToday) {
                 if (pastAlert) pastAlert.classList.add('hidden');
@@ -532,7 +529,6 @@
                 if (pastActions) pastActions.classList.remove('hidden');
             }
 
-            // Récupérer les pointages de la date active
             let currentLogs = [];
             if (isToday) {
                 currentLogs = state.logs || [];
@@ -548,7 +544,7 @@
             const logsList = document.getElementById('selected-day-logs-list');
             if (logsList) {
                 if (currentLogs.length === 0) {
-                    logsList.innerHTML = `<div class="text-gray-400 italic text-center py-3 text-xs">Aucun pointage pour le ${activeFr}. Ajoutes-en un ci-dessus !</div>`;
+                    logsList.innerHTML = `<div class="text-gray-400 italic text-center py-3 text-xs">Aucun pointage pour ${isToday ? "aujourd'hui" : "le " + activeFr}. Ajoutes-en un ci-dessus !</div>`;
                 } else {
                     logsList.innerHTML = currentLogs.map(l => {
                         const d = new Date(l.time);
@@ -570,7 +566,6 @@
             renderHistoryTab();
         }
 
-        // --- RAPPORTS ET CALCUL HEBDOMADAIRE ---
         function getWeekNumber(d) {
             d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
             d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
@@ -637,7 +632,6 @@
             if (elProgress) elProgress.style.width = `${Math.min((totalHours / 45) * 100, 100)}%`;
         }
 
-        // --- EXPORT EXCEL ---
         function exportToExcel(period) {
             const now = new Date();
             const curWeek = getWeekNumber(now);
