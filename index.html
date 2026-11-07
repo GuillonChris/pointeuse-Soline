@@ -13,7 +13,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         .glass {
-            background: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.72);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.85);
@@ -39,7 +39,7 @@
             top: 20px;
             right: -340px;
             transition: right 0.35s ease-in-out;
-            z-index: 50;
+            z-index: 60;
         }
         .toast.show {
             right: 20px;
@@ -48,7 +48,7 @@
 </head>
 <body class="text-gray-800 pb-20">
 
-    <!-- Notification Toast -->
+    <!-- Toast Notification -->
     <div id="toast" class="toast glass rounded-xl px-5 py-3 border-l-4 border-pink-400 flex items-center gap-3 shadow-lg">
         <i class="fas fa-heart text-pink-500"></i>
         <span id="toast-msg" class="font-medium text-sm text-gray-700">Message</span>
@@ -63,7 +63,7 @@
             <p class="text-xs text-gray-500 tracking-wide uppercase">Gère ton temps avec élégance</p>
         </div>
 
-        <!-- Onglets Navigation -->
+        <!-- Onglets -->
         <div class="flex rounded-full glass p-1 mb-5">
             <button type="button" onclick="switchTab('pointeuse')" id="tab-pointeuse" class="flex-1 py-2 rounded-full text-sm font-semibold bg-white/90 shadow text-pink-500 transition-all">Pointeuse</button>
             <button type="button" onclick="switchTab('rapports')" id="tab-rapports" class="flex-1 py-2 rounded-full text-sm font-semibold text-gray-500 hover:text-pink-400 transition-all">Rapports</button>
@@ -92,14 +92,14 @@
                     </button>
                 </div>
 
-                <!-- Formulaire d'oubli manuel -->
+                <!-- Formulaire d'oubli manuel pour aujourd'hui -->
                 <div class="border-t border-pink-200/60 pt-3">
                     <button type="button" onclick="toggleManualForm()" class="w-full text-xs text-pink-600 font-semibold py-1 flex items-center justify-center gap-1 hover:text-pink-700 transition">
-                        <i class="fas fa-pen"></i> <span id="manual-toggle-text">Oubli ? Ajouter une heure manuelle</span>
+                        <i class="fas fa-pen"></i> <span id="manual-toggle-text">Oubli aujourd'hui ? Ajouter une heure</span>
                     </button>
 
                     <div id="manual-form" class="hidden mt-3 p-3 bg-white/70 rounded-xl border border-pink-100 space-y-2.5">
-                        <div class="text-xs font-semibold text-gray-600">Pointage oublié :</div>
+                        <div class="text-xs font-semibold text-gray-600">Ajouter un pointage à la journée en cours :</div>
                         <div class="grid grid-cols-2 gap-2">
                             <select id="manual-type" class="text-xs p-2 rounded-lg border border-pink-200 bg-white">
                                 <option value="Arrivée">Arrivée</option>
@@ -109,8 +109,8 @@
                             </select>
                             <input type="time" id="manual-time" class="text-xs p-2 rounded-lg border border-pink-200 bg-white">
                         </div>
-                        <button type="button" onclick="addManualEntry()" class="w-full bg-pink-400 hover:bg-pink-500 text-white text-xs font-bold py-2 rounded-lg transition">
-                            Valider cette heure
+                        <button type="button" onclick="addManualEntryToday()" class="w-full bg-pink-400 hover:bg-pink-500 text-white text-xs font-bold py-2 rounded-lg transition">
+                            Valider ce pointage
                         </button>
                     </div>
                 </div>
@@ -120,7 +120,6 @@
                 </button>
             </div>
 
-            <!-- Historique du jour -->
             <div class="glass rounded-2xl p-5">
                 <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2 text-sm">
                     <i class="fas fa-history text-pink-400"></i> Pointages du jour
@@ -129,7 +128,7 @@
             </div>
         </div>
 
-        <!-- ONGLET RAPPORTS -->
+        <!-- ONGLET RAPPORTS & MODIFICATIONS -->
         <div id="view-rapports" class="hidden space-y-5">
             <div class="glass rounded-2xl p-5">
                 <h2 class="text-lg font-bold text-gray-700 mb-3">Synthèse Hebdomadaire</h2>
@@ -160,7 +159,7 @@
                 </div>
 
                 <!-- Export Excel -->
-                <div class="flex gap-2 mb-4">
+                <div class="flex gap-2 mb-5">
                     <button type="button" onclick="exportToExcel('semaine')" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold py-2.5 rounded-lg transition shadow flex items-center justify-center gap-1.5">
                         <i class="fas fa-file-excel"></i> Export Semaine
                     </button>
@@ -169,10 +168,16 @@
                     </button>
                 </div>
 
-                <h3 class="font-semibold text-gray-700 mb-2 text-sm">Détail des jours passés</h3>
-                <div id="history-list" class="space-y-2.5 max-h-64 overflow-y-auto"></div>
+                <!-- Section Sélection / Modification d'une journée -->
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="font-semibold text-gray-700 text-sm">Détail des journées</h3>
+                    <button type="button" onclick="openDateSelector()" class="text-xs bg-pink-100 hover:bg-pink-200 text-pink-700 font-bold px-2.5 py-1 rounded-lg transition flex items-center gap-1">
+                        <i class="fas fa-calendar-plus"></i> Corriger une date
+                    </button>
+                </div>
 
-                <!-- Sauvegarde de précaution -->
+                <div id="history-list" class="space-y-2.5 max-h-64 overflow-y-auto pr-1"></div>
+
                 <div class="mt-5 pt-3 border-t border-pink-100 text-center">
                     <button type="button" onclick="copierSauvegarde()" class="text-[11px] text-pink-500 hover:underline">
                         <i class="fas fa-shield-alt mr-1"></i> Copier une sauvegarde de mes données
@@ -183,8 +188,79 @@
 
     </div>
 
+    <!-- MODAL : SÉLECTEUR DE DATE À CORRIGER -->
+    <div id="modal-select-date" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+        <div class="glass w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-pink-200/50 pb-2">
+                <h3 class="font-bold text-gray-700 text-sm">Choisir une journée à modifier</h3>
+                <button type="button" onclick="closeDateSelector()" class="text-gray-400 hover:text-gray-600 text-lg">&times;</button>
+            </div>
+            <p class="text-xs text-gray-600">Sélectionne la date que tu souhaites corriger ou compléter :</p>
+            <input type="date" id="input-date-pick" class="w-full text-sm p-2.5 rounded-xl border border-pink-200 bg-white">
+            <div class="flex gap-2">
+                <button type="button" onclick="confirmDatePick()" class="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs py-2.5 rounded-xl transition">
+                    Ouvrir cette journée
+                </button>
+                <button type="button" onclick="closeDateSelector()" class="px-4 bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl">
+                    Annuler
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL : ÉDITEUR DÉTAILLÉ D'UNE JOURNÉE -->
+    <div id="modal-editor" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+        <div class="glass w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-pink-200/50 pb-2">
+                <div>
+                    <span class="text-xs text-pink-500 font-bold uppercase tracking-wider">Édition de journée</span>
+                    <h3 id="editor-title" class="font-bold text-gray-800 text-base">Date</h3>
+                </div>
+                <button type="button" onclick="closeEditor()" class="text-gray-400 hover:text-gray-600 text-2xl font-light">&times;</button>
+            </div>
+
+            <!-- Liste des pointages de ce jour -->
+            <div>
+                <div class="text-xs font-semibold text-gray-600 mb-2">Pointages enregistrés pour ce jour :</div>
+                <div id="editor-logs-list" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
+            </div>
+
+            <!-- Ajout d'un pointage sur cette date -->
+            <div class="p-3 bg-white/70 rounded-xl border border-pink-100 space-y-2">
+                <div class="text-xs font-bold text-pink-700">Ajouter une heure à cette date :</div>
+                <div class="grid grid-cols-2 gap-2">
+                    <select id="editor-add-type" class="text-xs p-2 rounded-lg border border-pink-200 bg-white">
+                        <option value="Arrivée">Arrivée</option>
+                        <option value="Pause">Pause</option>
+                        <option value="Reprise">Reprise</option>
+                        <option value="Départ">Départ</option>
+                    </select>
+                    <input type="time" id="editor-add-time" class="text-xs p-2 rounded-lg border border-pink-200 bg-white">
+                </div>
+                <button type="button" onclick="editorAddLog()" class="w-full bg-pink-400 hover:bg-pink-500 text-white text-xs font-bold py-2 rounded-lg transition">
+                    + Insérer cette heure
+                </button>
+            </div>
+
+            <!-- Total recalculé en direct -->
+            <div class="flex justify-between items-center bg-pink-100/70 p-3 rounded-xl border border-pink-200">
+                <span class="text-xs font-semibold text-gray-700">Total recalculé :</span>
+                <span id="editor-total-badge" class="font-mono text-pink-600 font-bold text-sm">0h 00</span>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="closeEditor()" class="flex-1 bg-gradient-to-r from-purple-400 to-pink-400 text-white text-xs font-bold py-2.5 rounded-xl shadow transition">
+                    Terminer & Fermer
+                </button>
+                <button type="button" onclick="editorDeleteDay()" class="px-3 bg-red-100 text-red-600 hover:bg-red-200 text-xs font-semibold rounded-xl transition" title="Supprimer complètement cette journée">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // --- GESTION DU STOCKAGE ---
+        // --- STOCKAGE ET PERSISTANCE ---
         function getStorage(key) {
             try {
                 const val = localStorage.getItem(key);
@@ -204,7 +280,16 @@
             return new Date().toLocaleDateString('fr-FR');
         }
 
-        // Récupération sécurisée sans écrasement
+        function dateToIso(dStr) {
+            const [d, m, y] = dStr.split('/');
+            return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+        }
+
+        function isoToDate(iso) {
+            const [y, m, d] = iso.split('-');
+            return `${d}/${m}/${y}`;
+        }
+
         let rawState = getStorage('soline_state') || {};
         let state = {
             logs: Array.isArray(rawState.logs) ? rawState.logs : [],
@@ -214,7 +299,7 @@
         let rawHistory = getStorage('soline_history');
         let historyData = Array.isArray(rawHistory) ? rawHistory : [];
 
-        // --- GESTION DE L'HORLOGE ---
+        // --- HORLOGE ---
         function runClock() {
             const now = new Date();
             const timeEl = document.getElementById('current-time');
@@ -232,7 +317,7 @@
         runClock();
         setInterval(runClock, 1000);
 
-        // --- GESTION DE LA MACHINE D'ÉTATS ---
+        // --- MACHINE D'ÉTATS POINTEUSE ---
         function getStatus() {
             if (!state.logs || state.logs.length === 0) return 'attente';
             const last = state.logs[state.logs.length - 1];
@@ -252,7 +337,7 @@
             showToast(`${actionName} enregistrée ! 🌸`);
         }
 
-        function addManualEntry() {
+        function addManualEntryToday() {
             const type = document.getElementById('manual-type').value;
             const timeVal = document.getElementById('manual-time').value;
             if (!timeVal) {
@@ -273,7 +358,7 @@
             showToast(`${type} ajoutée à ${timeVal}`);
         }
 
-        function deleteLog(id) {
+        function deleteLogToday(id) {
             if (!Array.isArray(state.logs)) return;
             state.logs = state.logs.filter(l => l.id !== id);
             setStorage('soline_state', state);
@@ -284,7 +369,7 @@
         function finJournee() {
             const currentStatus = getStatus();
             if (currentStatus === 'travail') {
-                showToast("⚠️ Pense à cliquer sur Départ avant de clôturer !");
+                showToast("⚠️ Clique sur Départ avant de clôturer !");
                 return;
             }
             if (!state.logs || state.logs.length === 0) return;
@@ -302,8 +387,9 @@
             if (!Array.isArray(logs)) return 0;
             let total = 0;
             let lastIn = null;
+            const sorted = [...logs].sort((a, b) => a.time - b.time);
 
-            logs.forEach(log => {
+            sorted.forEach(log => {
                 if (!log || !log.action || !log.time) return;
                 if (log.action === 'Arrivée' || log.action === 'Reprise') {
                     lastIn = log.time;
@@ -313,7 +399,7 @@
                 }
             });
 
-            if (lastIn && getStatus() === 'travail') {
+            if (lastIn && getStatus() === 'travail' && state.currentDateStr === getTodayStr() && logs === state.logs) {
                 total += Math.max(0, Date.now() - lastIn);
             }
             return total;
@@ -330,7 +416,14 @@
         function saveDayToHistory(dateStr, logs) {
             const ms = calculateTotalMs(logs);
             historyData = historyData.filter(h => h && h.date !== dateStr);
-            historyData.push({ date: dateStr, logs: [...logs], totalMs: ms });
+            if (logs.length > 0) {
+                historyData.push({ date: dateStr, logs: [...logs], totalMs: ms });
+            }
+            historyData.sort((a, b) => {
+                const [da, ma, ya] = a.date.split('/');
+                const [db, mb, yb] = b.date.split('/');
+                return new Date(yb, mb - 1, db) - new Date(ya, ma - 1, da);
+            });
             setStorage('soline_history', historyData);
         }
 
@@ -348,7 +441,125 @@
         }
         setInterval(checkMidnightReset, 60000);
 
-        // --- INTERFACE UTILISATEUR ---
+        // --- GESTIONNAIRE D'ÉDITION D'UNE DATE CHOISIE ---
+        let currentEditingDate = null;
+        let currentEditingLogs = [];
+
+        function openDateSelector() {
+            document.getElementById('input-date-pick').value = dateToIso(getTodayStr());
+            document.getElementById('modal-select-date').classList.remove('hidden');
+        }
+
+        function closeDateSelector() {
+            document.getElementById('modal-select-date').classList.add('hidden');
+        }
+
+        function confirmDatePick() {
+            const iso = document.getElementById('input-date-pick').value;
+            if (!iso) return;
+            closeDateSelector();
+            openEditorForDate(isoToDate(iso));
+        }
+
+        function openEditorForDate(dateStr) {
+            currentEditingDate = dateStr;
+            const existing = historyData.find(h => h && h.date === dateStr);
+            
+            if (existing && Array.isArray(existing.logs)) {
+                currentEditingLogs = JSON.parse(JSON.stringify(existing.logs));
+            } else if (dateStr === getTodayStr() && state.logs.length > 0) {
+                currentEditingLogs = JSON.parse(JSON.stringify(state.logs));
+            } else {
+                currentEditingLogs = [];
+            }
+
+            document.getElementById('editor-title').innerText = `Journée du ${dateStr}`;
+            document.getElementById('editor-add-time').value = "09:00";
+            renderEditorLogs();
+            document.getElementById('modal-editor').classList.remove('hidden');
+        }
+
+        function closeEditor() {
+            document.getElementById('modal-editor').classList.add('hidden');
+            saveDayToHistory(currentEditingDate, currentEditingLogs);
+            
+            // Si la date modifiée est aujourd'hui, synchroniser la pointeuse active
+            if (currentEditingDate === getTodayStr()) {
+                state.logs = JSON.parse(JSON.stringify(currentEditingLogs));
+                setStorage('soline_state', state);
+            }
+
+            updateUI();
+            showToast(`Journée du ${currentEditingDate} mise à jour ! ✨`);
+            currentEditingDate = null;
+            currentEditingLogs = [];
+        }
+
+        function renderEditorLogs() {
+            const list = document.getElementById('editor-logs-list');
+            currentEditingLogs.sort((a, b) => a.time - b.time);
+
+            if (currentEditingLogs.length === 0) {
+                list.innerHTML = `<div class="text-xs text-gray-400 italic py-2 text-center">Aucun pointage pour ce jour. Ajoutes-en un ci-dessous !</div>`;
+            } else {
+                list.innerHTML = currentEditingLogs.map(l => {
+                    const d = new Date(l.time);
+                    const timeStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                    const icon = (l.action === 'Arrivée' || l.action === 'Reprise') ? 'fa-arrow-right text-emerald-500' : 'fa-arrow-left text-pink-500';
+
+                    return `<div class="flex justify-between items-center bg-white/60 p-2 rounded-lg border border-pink-100 text-xs">
+                        <span class="font-semibold flex items-center gap-1.5"><i class="fas ${icon}"></i> ${l.action}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono bg-white px-2 py-0.5 rounded border border-pink-100 font-bold">${timeStr}</span>
+                            <button type="button" onclick="editorDeleteLog(${l.id})" class="text-gray-400 hover:text-red-500 transition px-1">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            const total = calculateTotalMs(currentEditingLogs);
+            document.getElementById('editor-total-badge').innerText = formatTime(total);
+        }
+
+        function editorAddLog() {
+            const type = document.getElementById('editor-add-type').value;
+            const timeVal = document.getElementById('editor-add-time').value;
+            if (!timeVal) {
+                showToast("Indique une heure valide.");
+                return;
+            }
+
+            const [hours, minutes] = timeVal.split(':').map(Number);
+            const [d, m, y] = currentEditingDate.split('/').map(Number);
+            const targetDate = new Date(y, m - 1, d, hours, minutes, 0, 0);
+
+            currentEditingLogs.push({
+                id: Date.now() + Math.random(),
+                action: type,
+                time: targetDate.getTime()
+            });
+
+            renderEditorLogs();
+            showToast(`${type} ajoutée.`);
+        }
+
+        function editorDeleteLog(id) {
+            currentEditingLogs = currentEditingLogs.filter(l => l.id !== id);
+            renderEditorLogs();
+            showToast("Pointage retiré.");
+        }
+
+        function editorDeleteDay() {
+            if (confirm(`Veux-tu vraiment supprimer tous les pointages du ${currentEditingDate} ?`)) {
+                currentEditingLogs = [];
+                renderEditorLogs();
+                closeEditor();
+            }
+        }
+
+        // --- AFFICHAGE & RENDU DE L'INTERFACE ---
         function updateUI() {
             const status = getStatus();
 
@@ -378,7 +589,7 @@
                             <span class="flex items-center gap-2 text-xs"><strong><i class="fas ${icon}"></i> ${l.action}</strong></span>
                             <div class="flex items-center gap-2">
                                 <span class="font-mono bg-white/90 px-2 py-0.5 rounded text-xs font-semibold">${timeStr}</span>
-                                <button type="button" onclick="deleteLog(${l.id})" class="text-gray-400 hover:text-red-500 transition px-1">
+                                <button type="button" onclick="deleteLogToday(${l.id})" class="text-gray-400 hover:text-red-500 transition px-1">
                                     <i class="fas fa-trash-alt text-xs"></i>
                                 </button>
                             </div>
@@ -409,8 +620,16 @@
                 list.innerHTML = historyData.map(item => {
                     const ms = (typeof item.totalMs === 'number') ? item.totalMs : calculateTotalMs(item.logs || []);
                     return `<div class="bg-white/65 p-3 rounded-xl border border-white flex justify-between items-center">
-                        <span class="font-bold text-gray-700 text-xs">${item.date}</span>
-                        <span class="font-mono text-pink-600 font-bold bg-pink-100/70 px-2.5 py-1 rounded-lg text-xs">${formatTime(ms)}</span>
+                        <div>
+                            <span class="font-bold text-gray-700 text-xs block">${item.date}</span>
+                            <span class="text-[11px] text-gray-500">${(item.logs||[]).length} pointage(s)</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono text-pink-600 font-bold bg-pink-100/70 px-2.5 py-1 rounded-lg text-xs">${formatTime(ms)}</span>
+                            <button type="button" onclick="openEditorForDate('${item.date}')" class="text-pink-600 hover:text-pink-700 bg-pink-50 hover:bg-pink-100 p-1.5 rounded-lg text-xs transition" title="Modifier cette journée">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                        </div>
                     </div>`;
                 }).join('');
             }
@@ -430,7 +649,6 @@
                 } catch (e) {}
             });
 
-            // Majoration 35h, 25%, 50%
             const totalHours = weekTotalMs / 3600000;
             const normalHours = Math.min(totalHours, 35);
             const hours25 = totalHours > 35 ? Math.min(totalHours - 35, 8) : 0;
@@ -526,7 +744,7 @@
             const txt = document.getElementById('manual-toggle-text');
             const isHidden = form.classList.contains('hidden');
             form.classList.toggle('hidden');
-            txt.innerText = isHidden ? "Fermer l'ajout manuel" : "Oubli ? Ajouter une heure manuelle";
+            txt.innerText = isHidden ? "Fermer l'ajout" : "Oubli aujourd'hui ? Ajouter une heure";
             if (isHidden) {
                 const now = new Date();
                 document.getElementById('manual-time').value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
@@ -565,7 +783,6 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // Lancement immédiat
         updateUI();
     </script>
 </body>
