@@ -56,7 +56,7 @@
 
     <div class="max-w-md mx-auto pt-6 px-4">
         
-        <div class="text-center mb-6">
+        <div class="text-center mb-5">
             <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-400 mb-1">
                 Les Heures de Soline 🌸
             </h1>
@@ -69,66 +69,95 @@
             <button type="button" onclick="switchTab('rapports')" id="tab-rapports" class="flex-1 py-2 rounded-full text-sm font-semibold text-gray-500 hover:text-pink-400 transition-all">Rapports</button>
         </div>
 
-        <!-- ONGLET POINTEUSE -->
-        <div id="view-pointeuse" class="space-y-5">
-            <div class="glass rounded-2xl p-5">
-                <div class="text-center mb-5">
-                    <div id="current-date" class="text-gray-500 text-xs capitalize mb-1">...</div>
-                    <div id="current-time" class="text-4xl font-light text-pink-600 tracking-wider">00:00:00</div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 mb-4">
-                    <button type="button" id="btn-arrivee" onclick="triggerAction('Arrivée')" class="btn-pink rounded-xl py-3 font-semibold flex flex-col items-center gap-1 shadow-sm">
-                        <i class="fas fa-sign-in-alt text-lg"></i> Arrivée
-                    </button>
-                    <button type="button" id="btn-pause" onclick="triggerAction('Pause')" class="btn-pink rounded-xl py-3 font-semibold flex flex-col items-center gap-1 shadow-sm" disabled>
-                        <i class="fas fa-coffee text-lg"></i> Pause
-                    </button>
-                    <button type="button" id="btn-reprise" onclick="triggerAction('Reprise')" class="btn-pink rounded-xl py-3 font-semibold flex flex-col items-center gap-1 shadow-sm" disabled>
-                        <i class="fas fa-play text-lg"></i> Reprise
-                    </button>
-                    <button type="button" id="btn-depart" onclick="triggerAction('Départ')" class="btn-pink rounded-xl py-3 font-semibold flex flex-col items-center gap-1 shadow-sm" disabled>
-                        <i class="fas fa-sign-out-alt text-lg"></i> Départ
-                    </button>
-                </div>
-
-                <!-- Formulaire d'oubli manuel pour aujourd'hui -->
-                <div class="border-t border-pink-200/60 pt-3">
-                    <button type="button" onclick="toggleManualForm()" class="w-full text-xs text-pink-600 font-semibold py-1 flex items-center justify-center gap-1 hover:text-pink-700 transition">
-                        <i class="fas fa-pen"></i> <span id="manual-toggle-text">Oubli aujourd'hui ? Ajouter une heure</span>
-                    </button>
-
-                    <div id="manual-form" class="hidden mt-3 p-3 bg-white/70 rounded-xl border border-pink-100 space-y-2.5">
-                        <div class="text-xs font-semibold text-gray-600">Ajouter un pointage à la journée en cours :</div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <select id="manual-type" class="text-xs p-2 rounded-lg border border-pink-200 bg-white">
-                                <option value="Arrivée">Arrivée</option>
-                                <option value="Pause">Pause</option>
-                                <option value="Reprise">Reprise</option>
-                                <option value="Départ">Départ</option>
-                            </select>
-                            <input type="time" id="manual-time" class="text-xs p-2 rounded-lg border border-pink-200 bg-white">
-                        </div>
-                        <button type="button" onclick="addManualEntryToday()" class="w-full bg-pink-400 hover:bg-pink-500 text-white text-xs font-bold py-2 rounded-lg transition">
-                            Valider ce pointage
+        <!-- ONGLET POINTEUSE ET ÉDITION -->
+        <div id="view-pointeuse" class="space-y-4">
+            
+            <!-- BARRE DE SÉLECTION DE LA DATE DIRECTE -->
+            <div class="glass rounded-2xl p-4">
+                <div class="flex items-center justify-between gap-2">
+                    <label for="date-selector" class="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                        <i class="fas fa-calendar-alt text-pink-500"></i> Date choisie :
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <input type="date" id="date-selector" onchange="onDateSelected(this.value)" class="text-xs p-2 rounded-xl border border-pink-200 bg-white font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-300">
+                        <button type="button" onclick="setTodayDate()" class="text-xs bg-pink-100 hover:bg-pink-200 text-pink-700 font-bold px-2.5 py-2 rounded-xl transition">
+                            Aujourd'hui
                         </button>
                     </div>
                 </div>
-                
-                <button type="button" id="btn-fin" onclick="finJournee()" class="w-full mt-4 bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-xl py-3 font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2" disabled>
-                    <i class="fas fa-check-circle"></i> Clôturer ma journée
-                </button>
+
+                <!-- Alerte visuelle si on est sur une date passée -->
+                <div id="past-date-alert" class="hidden mt-3 p-2.5 bg-pink-50 border border-pink-200 rounded-xl text-xs text-pink-700 flex items-center justify-between">
+                    <span><i class="fas fa-pen-alt mr-1"></i> Correction du jour : <strong id="past-date-label"></strong></span>
+                    <button type="button" onclick="setTodayDate()" class="text-[11px] underline font-bold hover:text-pink-900">Revenir à aujourd'hui</button>
+                </div>
             </div>
 
+            <!-- CARTE PRINCIPALE DES ACTIONS -->
             <div class="glass rounded-2xl p-5">
-                <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2 text-sm">
-                    <i class="fas fa-history text-pink-400"></i> Pointages du jour
-                </h3>
-                <div id="daily-logs" class="space-y-2 max-h-52 overflow-y-auto pr-1 text-sm"></div>
+                
+                <!-- BLOC JOUR ACTUEL (EN DIRECT) -->
+                <div id="today-actions-block">
+                    <div class="text-center mb-5">
+                        <div id="current-date-display" class="text-gray-500 text-xs capitalize mb-1">...</div>
+                        <div id="current-time-display" class="text-4xl font-light text-pink-600 tracking-wider">00:00:00</div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <button type="button" id="btn-arrivee" onclick="triggerLiveAction('Arrivée')" class="btn-pink rounded-xl py-3 font-semibold flex flex-col items-center gap-1 shadow-sm">
+                            <i class="fas fa-sign-in-alt text-lg"></i> Arrivée
+                        </button>
+                        <button type="button" id="btn-pause" onclick="triggerLiveAction('Pause')" class="btn-pink rounded-xl py-3 font-semibold flex flex-col items-center gap-1 shadow-sm" disabled>
+                            <i class="fas fa-coffee text-lg"></i> Pause
+                        </button>
+                        <button type="button" id="btn-reprise" onclick="triggerLiveAction('Reprise')" class="btn-pink rounded-xl py-3 font-semibold flex flex-col items-center gap-1 shadow-sm" disabled>
+                            <i class="fas fa-play text-lg"></i> Reprise
+                        </button>
+                        <button type="button" id="btn-depart" onclick="triggerLiveAction('Départ')" class="btn-pink rounded-xl py-3 font-semibold flex flex-col items-center gap-1 shadow-sm" disabled>
+                            <i class="fas fa-sign-out-alt text-lg"></i> Départ
+                        </button>
+                    </div>
+
+                    <button type="button" id="btn-fin" onclick="finJourneeToday()" class="w-full bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-xl py-3 font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 mb-3" disabled>
+                        <i class="fas fa-check-circle"></i> Clôturer ma journée
+                    </button>
+                </div>
+
+                <!-- FORMULAIRE UNIVERSEL D'AJOUT MANUEL (FONCTIONNE POUR TOUTES LES DATES) -->
+                <div class="border-t border-pink-200/60 pt-3">
+                    <div class="text-xs font-bold text-gray-700 mb-2 flex items-center gap-1">
+                        <i class="fas fa-plus-circle text-pink-500"></i> Ajouter une heure manuelle à cette date :
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <select id="manual-type-input" class="text-xs p-2 rounded-xl border border-pink-200 bg-white">
+                            <option value="Arrivée">Arrivée</option>
+                            <option value="Pause">Pause</option>
+                            <option value="Reprise">Reprise</option>
+                            <option value="Départ">Départ</option>
+                        </select>
+                        <input type="time" id="manual-time-input" value="08:30" class="text-xs p-2 rounded-xl border border-pink-200 bg-white">
+                    </div>
+                    <button type="button" onclick="submitManualEntry()" class="w-full bg-pink-400 hover:bg-pink-500 text-white text-xs font-bold py-2.5 rounded-xl transition shadow">
+                        Valider cette heure pour le <span id="btn-target-date-label"></span>
+                    </button>
+                </div>
+
             </div>
+
+            <!-- HISTORIQUE ET TOTAL DU JOUR SÉLECTIONNÉ -->
+            <div class="glass rounded-2xl p-5">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-semibold text-gray-700 text-sm flex items-center gap-1.5">
+                        <i class="fas fa-list text-pink-400"></i> Pointages du <span id="logs-date-label" class="text-pink-600 font-bold ml-1"></span>
+                    </h3>
+                    <span id="selected-day-total" class="font-mono text-pink-600 font-bold bg-pink-100/80 px-2.5 py-1 rounded-lg text-xs">0h 00</span>
+                </div>
+                <div id="selected-day-logs-list" class="space-y-2 max-h-56 overflow-y-auto pr-1 text-sm"></div>
+            </div>
+
         </div>
 
-        <!-- ONGLET RAPPORTS & MODIFICATIONS -->
+        <!-- ONGLET RAPPORTS -->
         <div id="view-rapports" class="hidden space-y-5">
             <div class="glass rounded-2xl p-5">
                 <h2 class="text-lg font-bold text-gray-700 mb-3">Synthèse Hebdomadaire</h2>
@@ -158,7 +187,7 @@
                     </div>
                 </div>
 
-                <!-- Export Excel -->
+                <!-- Boutons Export Excel -->
                 <div class="flex gap-2 mb-5">
                     <button type="button" onclick="exportToExcel('semaine')" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold py-2.5 rounded-lg transition shadow flex items-center justify-center gap-1.5">
                         <i class="fas fa-file-excel"></i> Export Semaine
@@ -168,12 +197,8 @@
                     </button>
                 </div>
 
-                <!-- Section Sélection / Modification d'une journée -->
                 <div class="flex justify-between items-center mb-2">
                     <h3 class="font-semibold text-gray-700 text-sm">Détail des journées</h3>
-                    <button type="button" onclick="openDateSelector()" class="text-xs bg-pink-100 hover:bg-pink-200 text-pink-700 font-bold px-2.5 py-1 rounded-lg transition flex items-center gap-1">
-                        <i class="fas fa-calendar-plus"></i> Corriger une date
-                    </button>
                 </div>
 
                 <div id="history-list" class="space-y-2.5 max-h-64 overflow-y-auto pr-1"></div>
@@ -188,122 +213,71 @@
 
     </div>
 
-    <!-- MODAL : SÉLECTEUR DE DATE À CORRIGER -->
-    <div id="modal-select-date" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-        <div class="glass w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b border-pink-200/50 pb-2">
-                <h3 class="font-bold text-gray-700 text-sm">Choisir une journée à modifier</h3>
-                <button type="button" onclick="closeDateSelector()" class="text-gray-400 hover:text-gray-600 text-lg">&times;</button>
-            </div>
-            <p class="text-xs text-gray-600">Sélectionne la date que tu souhaites corriger ou compléter :</p>
-            <input type="date" id="input-date-pick" class="w-full text-sm p-2.5 rounded-xl border border-pink-200 bg-white">
-            <div class="flex gap-2">
-                <button type="button" onclick="confirmDatePick()" class="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs py-2.5 rounded-xl transition">
-                    Ouvrir cette journée
-                </button>
-                <button type="button" onclick="closeDateSelector()" class="px-4 bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl">
-                    Annuler
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL : ÉDITEUR DÉTAILLÉ D'UNE JOURNÉE -->
-    <div id="modal-editor" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-        <div class="glass w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b border-pink-200/50 pb-2">
-                <div>
-                    <span class="text-xs text-pink-500 font-bold uppercase tracking-wider">Édition de journée</span>
-                    <h3 id="editor-title" class="font-bold text-gray-800 text-base">Date</h3>
-                </div>
-                <button type="button" onclick="closeEditor()" class="text-gray-400 hover:text-gray-600 text-2xl font-light">&times;</button>
-            </div>
-
-            <!-- Liste des pointages de ce jour -->
-            <div>
-                <div class="text-xs font-semibold text-gray-600 mb-2">Pointages enregistrés pour ce jour :</div>
-                <div id="editor-logs-list" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
-            </div>
-
-            <!-- Ajout d'un pointage sur cette date -->
-            <div class="p-3 bg-white/70 rounded-xl border border-pink-100 space-y-2">
-                <div class="text-xs font-bold text-pink-700">Ajouter une heure à cette date :</div>
-                <div class="grid grid-cols-2 gap-2">
-                    <select id="editor-add-type" class="text-xs p-2 rounded-lg border border-pink-200 bg-white">
-                        <option value="Arrivée">Arrivée</option>
-                        <option value="Pause">Pause</option>
-                        <option value="Reprise">Reprise</option>
-                        <option value="Départ">Départ</option>
-                    </select>
-                    <input type="time" id="editor-add-time" class="text-xs p-2 rounded-lg border border-pink-200 bg-white">
-                </div>
-                <button type="button" onclick="editorAddLog()" class="w-full bg-pink-400 hover:bg-pink-500 text-white text-xs font-bold py-2 rounded-lg transition">
-                    + Insérer cette heure
-                </button>
-            </div>
-
-            <!-- Total recalculé en direct -->
-            <div class="flex justify-between items-center bg-pink-100/70 p-3 rounded-xl border border-pink-200">
-                <span class="text-xs font-semibold text-gray-700">Total recalculé :</span>
-                <span id="editor-total-badge" class="font-mono text-pink-600 font-bold text-sm">0h 00</span>
-            </div>
-
-            <div class="flex gap-2 pt-2">
-                <button type="button" onclick="closeEditor()" class="flex-1 bg-gradient-to-r from-purple-400 to-pink-400 text-white text-xs font-bold py-2.5 rounded-xl shadow transition">
-                    Terminer & Fermer
-                </button>
-                <button type="button" onclick="editorDeleteDay()" class="px-3 bg-red-100 text-red-600 hover:bg-red-200 text-xs font-semibold rounded-xl transition" title="Supprimer complètement cette journée">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // --- STOCKAGE ET PERSISTANCE ---
+        // --- UTILITAIRES DE DATES ET NORMALISATION ---
+        function pad2(n) { return String(n).padStart(2, '0'); }
+
+        function getTodayIso() {
+            const now = new Date();
+            return `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`;
+        }
+
+        function isoToFr(iso) {
+            if (!iso) return normalizeFrDate(new Date().toLocaleDateString('fr-FR'));
+            const [y, m, d] = iso.split('-');
+            return `${pad2(d)}/${pad2(m)}/${y}`;
+        }
+
+        function frToIso(fr) {
+            if (!fr) return getTodayIso();
+            const parts = fr.split('/');
+            if (parts.length === 3) {
+                return `${parts[2]}-${pad2(parts[1])}-${pad2(parts[0])}`;
+            }
+            return getTodayIso();
+        }
+
+        function normalizeFrDate(str) {
+            if (!str) return '';
+            const p = str.split('/');
+            if (p.length === 3) return `${pad2(p[0])}/${pad2(p[1])}/${p[2]}`;
+            return str;
+        }
+
+        // --- STOCKAGE PERSISTANT ---
         function getStorage(key) {
             try {
                 const val = localStorage.getItem(key);
                 return val ? JSON.parse(val) : null;
-            } catch (e) {
-                return null;
-            }
+            } catch (e) { return null; }
         }
 
         function setStorage(key, val) {
-            try {
-                localStorage.setItem(key, JSON.stringify(val));
-            } catch (e) {}
-        }
-
-        function getTodayStr() {
-            return new Date().toLocaleDateString('fr-FR');
-        }
-
-        function dateToIso(dStr) {
-            const [d, m, y] = dStr.split('/');
-            return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
-        }
-
-        function isoToDate(iso) {
-            const [y, m, d] = iso.split('-');
-            return `${d}/${m}/${y}`;
+            try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
         }
 
         let rawState = getStorage('soline_state') || {};
         let state = {
             logs: Array.isArray(rawState.logs) ? rawState.logs : [],
-            currentDateStr: (typeof rawState.currentDateStr === 'string' && rawState.currentDateStr) ? rawState.currentDateStr : getTodayStr()
+            currentDateStr: normalizeFrDate(rawState.currentDateStr || new Date().toLocaleDateString('fr-FR'))
         };
 
         let rawHistory = getStorage('soline_history');
         let historyData = Array.isArray(rawHistory) ? rawHistory : [];
 
-        // --- HORLOGE ---
+        // Harmonisation des formats de dates existants
+        historyData.forEach(item => {
+            if (item && item.date) item.date = normalizeFrDate(item.date);
+        });
+
+        // Date actuellement examinée/modifiée dans la pointeuse (par défaut aujourd'hui)
+        let activeDateIso = getTodayIso();
+
+        // --- HORLOGE INSTANTANÉE ---
         function runClock() {
             const now = new Date();
-            const timeEl = document.getElementById('current-time');
-            const dateEl = document.getElementById('current-date');
+            const timeEl = document.getElementById('current-time-display');
+            const dateEl = document.getElementById('current-date-display');
             if (timeEl) timeEl.textContent = now.toLocaleTimeString('fr-FR');
             if (dateEl) {
                 dateEl.textContent = now.toLocaleDateString('fr-FR', {
@@ -317,8 +291,28 @@
         runClock();
         setInterval(runClock, 1000);
 
-        // --- MACHINE D'ÉTATS POINTEUSE ---
-        function getStatus() {
+        // --- GESTION DU SÉLECTEUR DE DATE ---
+        function onDateSelected(isoValue) {
+            if (!isoValue) return;
+            activeDateIso = isoValue;
+            updateUI();
+        }
+
+        function setTodayDate() {
+            activeDateIso = getTodayIso();
+            document.getElementById('date-selector').value = activeDateIso;
+            updateUI();
+        }
+
+        function editSpecificDate(frDate) {
+            activeDateIso = frToIso(frDate);
+            document.getElementById('date-selector').value = activeDateIso;
+            switchTab('pointeuse');
+            showToast(`Modification du ${frDate} activée ✏️`);
+        }
+
+        // --- GESTION DES POINTAGES EN DIRECT (AUJOURD'HUI) ---
+        function getStatusToday() {
             if (!state.logs || state.logs.length === 0) return 'attente';
             const last = state.logs[state.logs.length - 1];
             if (!last || !last.action) return 'attente';
@@ -327,7 +321,7 @@
             return 'attente';
         }
 
-        function triggerAction(actionName) {
+        function triggerLiveAction(actionName) {
             const now = Date.now();
             if (!Array.isArray(state.logs)) state.logs = [];
             state.logs.push({ id: now + Math.random(), action: actionName, time: now });
@@ -337,44 +331,15 @@
             showToast(`${actionName} enregistrée ! 🌸`);
         }
 
-        function addManualEntryToday() {
-            const type = document.getElementById('manual-type').value;
-            const timeVal = document.getElementById('manual-time').value;
-            if (!timeVal) {
-                showToast("Indique une heure valide.");
-                return;
-            }
-
-            const [hours, minutes] = timeVal.split(':').map(Number);
-            const entryDate = new Date();
-            entryDate.setHours(hours, minutes, 0, 0);
-
-            if (!Array.isArray(state.logs)) state.logs = [];
-            state.logs.push({ id: Date.now() + Math.random(), action: type, time: entryDate.getTime() });
-            state.logs.sort((a, b) => a.time - b.time);
-            setStorage('soline_state', state);
-            toggleManualForm();
-            updateUI();
-            showToast(`${type} ajoutée à ${timeVal}`);
-        }
-
-        function deleteLogToday(id) {
-            if (!Array.isArray(state.logs)) return;
-            state.logs = state.logs.filter(l => l.id !== id);
-            setStorage('soline_state', state);
-            updateUI();
-            showToast("Pointage supprimé.");
-        }
-
-        function finJournee() {
-            const currentStatus = getStatus();
-            if (currentStatus === 'travail') {
+        function finJourneeToday() {
+            const status = getStatusToday();
+            if (status === 'travail') {
                 showToast("⚠️ Clique sur Départ avant de clôturer !");
                 return;
             }
             if (!state.logs || state.logs.length === 0) return;
 
-            saveDayToHistory(state.currentDateStr, state.logs);
+            saveDayToHistory(isoToFr(getTodayIso()), state.logs);
             state.logs = [];
             setStorage('soline_state', state);
             updateUI();
@@ -382,9 +347,66 @@
             switchTab('rapports');
         }
 
+        // --- AJOUT MANUEL POUR LA DATE CHOISIE ---
+        function submitManualEntry() {
+            const type = document.getElementById('manual-type-input').value;
+            const timeVal = document.getElementById('manual-time-input').value;
+            if (!timeVal) {
+                showToast("Indique une heure valide.");
+                return;
+            }
+
+            const [hours, minutes] = timeVal.split(':').map(Number);
+            const [y, m, d] = activeDateIso.split('-').map(Number);
+            const targetDate = new Date(y, m - 1, d, hours, minutes, 0, 0);
+
+            const isToday = (activeDateIso === getTodayIso());
+            const targetFr = isoToFr(activeDateIso);
+
+            if (isToday) {
+                if (!Array.isArray(state.logs)) state.logs = [];
+                state.logs.push({ id: Date.now() + Math.random(), action: type, time: targetDate.getTime() });
+                state.logs.sort((a, b) => a.time - b.time);
+                setStorage('soline_state', state);
+            } else {
+                let dayEntry = historyData.find(h => h && h.date === targetFr);
+                if (!dayEntry) {
+                    dayEntry = { date: targetFr, logs: [], totalMs: 0 };
+                    historyData.push(dayEntry);
+                }
+                if (!Array.isArray(dayEntry.logs)) dayEntry.logs = [];
+                dayEntry.logs.push({ id: Date.now() + Math.random(), action: type, time: targetDate.getTime() });
+                dayEntry.logs.sort((a, b) => a.time - b.time);
+                dayEntry.totalMs = calculateTotalMs(dayEntry.logs, false);
+                setStorage('soline_history', historyData);
+            }
+
+            updateUI();
+            showToast(`${type} ajoutée à ${timeVal} pour le ${targetFr} 🌸`);
+        }
+
+        function deleteLogFromActiveDay(logId) {
+            const isToday = (activeDateIso === getTodayIso());
+            const targetFr = isoToFr(activeDateIso);
+
+            if (isToday) {
+                state.logs = state.logs.filter(l => l.id !== logId);
+                setStorage('soline_state', state);
+            } else {
+                const dayEntry = historyData.find(h => h && h.date === targetFr);
+                if (dayEntry && Array.isArray(dayEntry.logs)) {
+                    dayEntry.logs = dayEntry.logs.filter(l => l.id !== logId);
+                    dayEntry.totalMs = calculateTotalMs(dayEntry.logs, false);
+                    setStorage('soline_history', historyData);
+                }
+            }
+            updateUI();
+            showToast("Pointage supprimé.");
+        }
+
         // --- CALCULS DU TEMPS ---
-        function calculateTotalMs(logs) {
-            if (!Array.isArray(logs)) return 0;
+        function calculateTotalMs(logs, isLiveToday = false) {
+            if (!Array.isArray(logs) || logs.length === 0) return 0;
             let total = 0;
             let lastIn = null;
             const sorted = [...logs].sort((a, b) => a.time - b.time);
@@ -399,7 +421,7 @@
                 }
             });
 
-            if (lastIn && getStatus() === 'travail' && state.currentDateStr === getTodayStr() && logs === state.logs) {
+            if (lastIn && isLiveToday && getStatusToday() === 'travail') {
                 total += Math.max(0, Date.now() - lastIn);
             }
             return total;
@@ -414,7 +436,7 @@
         }
 
         function saveDayToHistory(dateStr, logs) {
-            const ms = calculateTotalMs(logs);
+            const ms = calculateTotalMs(logs, false);
             historyData = historyData.filter(h => h && h.date !== dateStr);
             if (logs.length > 0) {
                 historyData.push({ date: dateStr, logs: [...logs], totalMs: ms });
@@ -427,190 +449,96 @@
             setStorage('soline_history', historyData);
         }
 
-        function checkMidnightReset() {
-            const todayStr = getTodayStr();
-            if (state.currentDateStr !== todayStr) {
-                if (Array.isArray(state.logs) && state.logs.length > 0) {
-                    saveDayToHistory(state.currentDateStr, state.logs);
-                }
-                state.logs = [];
-                state.currentDateStr = todayStr;
-                setStorage('soline_state', state);
-                updateUI();
-            }
-        }
-        setInterval(checkMidnightReset, 60000);
-
-        // --- GESTIONNAIRE D'ÉDITION D'UNE DATE CHOISIE ---
-        let currentEditingDate = null;
-        let currentEditingLogs = [];
-
-        function openDateSelector() {
-            document.getElementById('input-date-pick').value = dateToIso(getTodayStr());
-            document.getElementById('modal-select-date').classList.remove('hidden');
-        }
-
-        function closeDateSelector() {
-            document.getElementById('modal-select-date').classList.add('hidden');
-        }
-
-        function confirmDatePick() {
-            const iso = document.getElementById('input-date-pick').value;
-            if (!iso) return;
-            closeDateSelector();
-            openEditorForDate(isoToDate(iso));
-        }
-
-        function openEditorForDate(dateStr) {
-            currentEditingDate = dateStr;
-            const existing = historyData.find(h => h && h.date === dateStr);
-            
-            if (existing && Array.isArray(existing.logs)) {
-                currentEditingLogs = JSON.parse(JSON.stringify(existing.logs));
-            } else if (dateStr === getTodayStr() && state.logs.length > 0) {
-                currentEditingLogs = JSON.parse(JSON.stringify(state.logs));
-            } else {
-                currentEditingLogs = [];
-            }
-
-            document.getElementById('editor-title').innerText = `Journée du ${dateStr}`;
-            document.getElementById('editor-add-time').value = "09:00";
-            renderEditorLogs();
-            document.getElementById('modal-editor').classList.remove('hidden');
-        }
-
-        function closeEditor() {
-            document.getElementById('modal-editor').classList.add('hidden');
-            saveDayToHistory(currentEditingDate, currentEditingLogs);
-            
-            // Si la date modifiée est aujourd'hui, synchroniser la pointeuse active
-            if (currentEditingDate === getTodayStr()) {
-                state.logs = JSON.parse(JSON.stringify(currentEditingLogs));
-                setStorage('soline_state', state);
-            }
-
-            updateUI();
-            showToast(`Journée du ${currentEditingDate} mise à jour ! ✨`);
-            currentEditingDate = null;
-            currentEditingLogs = [];
-        }
-
-        function renderEditorLogs() {
-            const list = document.getElementById('editor-logs-list');
-            currentEditingLogs.sort((a, b) => a.time - b.time);
-
-            if (currentEditingLogs.length === 0) {
-                list.innerHTML = `<div class="text-xs text-gray-400 italic py-2 text-center">Aucun pointage pour ce jour. Ajoutes-en un ci-dessous !</div>`;
-            } else {
-                list.innerHTML = currentEditingLogs.map(l => {
-                    const d = new Date(l.time);
-                    const timeStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-                    const icon = (l.action === 'Arrivée' || l.action === 'Reprise') ? 'fa-arrow-right text-emerald-500' : 'fa-arrow-left text-pink-500';
-
-                    return `<div class="flex justify-between items-center bg-white/60 p-2 rounded-lg border border-pink-100 text-xs">
-                        <span class="font-semibold flex items-center gap-1.5"><i class="fas ${icon}"></i> ${l.action}</span>
-                        <div class="flex items-center gap-2">
-                            <span class="font-mono bg-white px-2 py-0.5 rounded border border-pink-100 font-bold">${timeStr}</span>
-                            <button type="button" onclick="editorDeleteLog(${l.id})" class="text-gray-400 hover:text-red-500 transition px-1">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </div>
-                    </div>`;
-                }).join('');
-            }
-
-            const total = calculateTotalMs(currentEditingLogs);
-            document.getElementById('editor-total-badge').innerText = formatTime(total);
-        }
-
-        function editorAddLog() {
-            const type = document.getElementById('editor-add-type').value;
-            const timeVal = document.getElementById('editor-add-time').value;
-            if (!timeVal) {
-                showToast("Indique une heure valide.");
-                return;
-            }
-
-            const [hours, minutes] = timeVal.split(':').map(Number);
-            const [d, m, y] = currentEditingDate.split('/').map(Number);
-            const targetDate = new Date(y, m - 1, d, hours, minutes, 0, 0);
-
-            currentEditingLogs.push({
-                id: Date.now() + Math.random(),
-                action: type,
-                time: targetDate.getTime()
-            });
-
-            renderEditorLogs();
-            showToast(`${type} ajoutée.`);
-        }
-
-        function editorDeleteLog(id) {
-            currentEditingLogs = currentEditingLogs.filter(l => l.id !== id);
-            renderEditorLogs();
-            showToast("Pointage retiré.");
-        }
-
-        function editorDeleteDay() {
-            if (confirm(`Veux-tu vraiment supprimer tous les pointages du ${currentEditingDate} ?`)) {
-                currentEditingLogs = [];
-                renderEditorLogs();
-                closeEditor();
-            }
-        }
-
-        // --- AFFICHAGE & RENDU DE L'INTERFACE ---
+        // --- MISE À JOUR DE L'INTERFACE ---
         function updateUI() {
-            const status = getStatus();
+            const todayIso = getTodayIso();
+            const isToday = (activeDateIso === todayIso);
+            const activeFr = isoToFr(activeDateIso);
 
-            const btnArr = document.getElementById('btn-arrivee');
-            const btnPau = document.getElementById('btn-pause');
-            const btnRep = document.getElementById('btn-reprise');
-            const btnDep = document.getElementById('btn-depart');
-            const btnFin = document.getElementById('btn-fin');
+            // Synchroniser le sélecteur de date
+            const selector = document.getElementById('date-selector');
+            if (selector && selector.value !== activeDateIso) selector.value = activeDateIso;
 
-            if (btnArr) btnArr.disabled = (status !== 'attente');
-            if (btnPau) btnPau.disabled = (status !== 'travail');
-            if (btnRep) btnRep.disabled = (status !== 'pause');
-            if (btnDep) btnDep.disabled = (status !== 'travail');
-            if (btnFin) btnFin.disabled = !(status === 'attente' && state.logs && state.logs.length > 0);
+            // Alerte date passée
+            const pastAlert = document.getElementById('past-date-alert');
+            const pastLabel = document.getElementById('past-date-label');
+            const targetBtnLabel = document.getElementById('btn-target-date-label');
+            const logsDateLabel = document.getElementById('logs-date-label');
+            const todayActions = document.getElementById('today-actions-block');
 
-            // Rendu logs du jour
-            const logsDiv = document.getElementById('daily-logs');
-            if (logsDiv) {
-                if (!state.logs || state.logs.length === 0) {
-                    logsDiv.innerHTML = `<div class="text-gray-400 italic text-center py-3 text-xs">Aucun pointage en cours aujourd'hui.</div>`;
+            if (targetBtnLabel) targetBtnLabel.textContent = isToday ? "aujourd'hui" : activeFr;
+            if (logsDateLabel) logsDateLabel.textContent = isToday ? "aujourd'hui" : activeFr;
+
+            if (isToday) {
+                if (pastAlert) pastAlert.classList.add('hidden');
+                if (todayActions) todayActions.classList.remove('hidden');
+
+                // Boutons directs
+                const status = getStatusToday();
+                const btnArr = document.getElementById('btn-arrivee');
+                const btnPau = document.getElementById('btn-pause');
+                const btnRep = document.getElementById('btn-reprise');
+                const btnDep = document.getElementById('btn-depart');
+                const btnFin = document.getElementById('btn-fin');
+
+                if (btnArr) btnArr.disabled = (status !== 'attente');
+                if (btnPau) btnPau.disabled = (status !== 'travail');
+                if (btnRep) btnRep.disabled = (status !== 'pause');
+                if (btnDep) btnDep.disabled = (status !== 'travail');
+                if (btnFin) btnFin.disabled = !(status === 'attente' && state.logs && state.logs.length > 0);
+            } else {
+                if (pastAlert) pastAlert.classList.remove('hidden');
+                if (pastLabel) pastLabel.textContent = activeFr;
+                if (todayActions) todayActions.classList.add('hidden');
+            }
+
+            // Récupérer les pointages de la date active
+            let currentLogs = [];
+            if (isToday) {
+                currentLogs = state.logs || [];
+            } else {
+                const found = historyData.find(h => h && h.date === activeFr);
+                currentLogs = found ? (found.logs || []) : [];
+            }
+
+            const totalActiveMs = calculateTotalMs(currentLogs, isToday);
+            const totalBadge = document.getElementById('selected-day-total');
+            if (totalBadge) totalBadge.textContent = formatTime(totalActiveMs);
+
+            // Liste des pointages affichés
+            const logsList = document.getElementById('selected-day-logs-list');
+            if (logsList) {
+                if (currentLogs.length === 0) {
+                    logsList.innerHTML = `<div class="text-gray-400 italic text-center py-3 text-xs">Aucun pointage pour le ${activeFr}. Ajoutes-en un avec le formulaire ci-dessus !</div>`;
                 } else {
-                    logsDiv.innerHTML = state.logs.map(l => {
+                    logsList.innerHTML = currentLogs.map(l => {
                         const d = new Date(l.time);
-                        const timeStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                        const timeStr = `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
                         const icon = (l.action === 'Arrivée' || l.action === 'Reprise') ? 'fa-arrow-right text-emerald-500' : 'fa-arrow-left text-pink-500';
                         return `<div class="flex justify-between items-center bg-white/60 px-3 py-2 rounded-xl border border-white">
                             <span class="flex items-center gap-2 text-xs"><strong><i class="fas ${icon}"></i> ${l.action}</strong></span>
                             <div class="flex items-center gap-2">
                                 <span class="font-mono bg-white/90 px-2 py-0.5 rounded text-xs font-semibold">${timeStr}</span>
-                                <button type="button" onclick="deleteLogToday(${l.id})" class="text-gray-400 hover:text-red-500 transition px-1">
+                                <button type="button" onclick="deleteLogFromActiveDay(${l.id})" class="text-gray-400 hover:text-red-500 transition px-1" title="Supprimer ce pointage">
                                     <i class="fas fa-trash-alt text-xs"></i>
                                 </button>
                             </div>
                         </div>`;
                     }).join('');
-
-                    const totalMs = calculateTotalMs(state.logs);
-                    logsDiv.innerHTML += `<div class="mt-2 text-center font-bold text-pink-600 bg-white/70 py-2 rounded-xl text-xs">Temps cumulé aujourd'hui : ${formatTime(totalMs)}</div>`;
                 }
             }
 
-            renderHistory();
+            renderHistoryTab();
         }
 
+        // --- CALCULS SEMAINE & ONGLET RAPPORTS ---
         function getWeekNumber(d) {
             d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
             d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
             return Math.ceil((((d - new Date(Date.UTC(d.getUTCFullYear(),0,1))) / 86400000) + 1)/7);
         }
 
-        function renderHistory() {
+        function renderHistoryTab() {
             const list = document.getElementById('history-list');
             if (!list) return;
 
@@ -618,7 +546,7 @@
                 list.innerHTML = `<div class="text-gray-400 italic text-center py-4 text-xs">Aucune journée passée enregistrée.</div>`;
             } else {
                 list.innerHTML = historyData.map(item => {
-                    const ms = (typeof item.totalMs === 'number') ? item.totalMs : calculateTotalMs(item.logs || []);
+                    const ms = (typeof item.totalMs === 'number') ? item.totalMs : calculateTotalMs(item.logs || [], false);
                     return `<div class="bg-white/65 p-3 rounded-xl border border-white flex justify-between items-center">
                         <div>
                             <span class="font-bold text-gray-700 text-xs block">${item.date}</span>
@@ -626,15 +554,15 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="font-mono text-pink-600 font-bold bg-pink-100/70 px-2.5 py-1 rounded-lg text-xs">${formatTime(ms)}</span>
-                            <button type="button" onclick="openEditorForDate('${item.date}')" class="text-pink-600 hover:text-pink-700 bg-pink-50 hover:bg-pink-100 p-1.5 rounded-lg text-xs transition" title="Modifier cette journée">
-                                <i class="fas fa-pencil-alt"></i>
+                            <button type="button" onclick="editSpecificDate('${item.date}')" class="text-pink-600 hover:text-pink-800 bg-pink-100 hover:bg-pink-200 px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Modifier ce jour">
+                                <i class="fas fa-pencil-alt"></i> Modifier
                             </button>
                         </div>
                     </div>`;
                 }).join('');
             }
 
-            // Calcul semaine en cours
+            // Synthèse semaine
             const now = new Date();
             const curWeek = getWeekNumber(now);
             let weekTotalMs = 0;
@@ -644,10 +572,15 @@
                     const [d, m, y] = item.date.split('/');
                     const itDate = new Date(y, m - 1, d);
                     if (getWeekNumber(itDate) === curWeek && itDate.getFullYear() === now.getFullYear()) {
-                        weekTotalMs += (typeof item.totalMs === 'number' ? item.totalMs : calculateTotalMs(item.logs || []));
+                        weekTotalMs += (typeof item.totalMs === 'number' ? item.totalMs : calculateTotalMs(item.logs || [], false));
                     }
                 } catch (e) {}
             });
+
+            // Si aujourd'hui a des heures en cours, les ajouter à la semaine
+            if (state.logs && state.logs.length > 0) {
+                weekTotalMs += calculateTotalMs(state.logs, true);
+            }
 
             const totalHours = weekTotalMs / 3600000;
             const normalHours = Math.min(totalHours, 35);
@@ -684,9 +617,7 @@
                     } else {
                         return itDate.getMonth() === curMonth && itDate.getFullYear() === curYear;
                     }
-                } catch (e) {
-                    return false;
-                }
+                } catch (e) { return false; }
             });
 
             if (dataToExport.length === 0) {
@@ -698,11 +629,11 @@
             let totalMs = 0;
 
             dataToExport.forEach(item => {
-                const ms = (typeof item.totalMs === 'number') ? item.totalMs : calculateTotalMs(item.logs || []);
+                const ms = (typeof item.totalMs === 'number') ? item.totalMs : calculateTotalMs(item.logs || [], false);
                 totalMs += ms;
                 const logsStr = (item.logs || []).map(l => {
                     const dt = new Date(l.time);
-                    return `${l.action} à ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+                    return `${l.action} à ${pad2(dt.getHours())}:${pad2(dt.getMinutes())}`;
                 }).join(' | ');
 
                 csvContent += `${item.date};${logsStr};${formatTime(ms)}\n`;
@@ -739,18 +670,6 @@
             });
         }
 
-        function toggleManualForm() {
-            const form = document.getElementById('manual-form');
-            const txt = document.getElementById('manual-toggle-text');
-            const isHidden = form.classList.contains('hidden');
-            form.classList.toggle('hidden');
-            txt.innerText = isHidden ? "Fermer l'ajout" : "Oubli aujourd'hui ? Ajouter une heure";
-            if (isHidden) {
-                const now = new Date();
-                document.getElementById('manual-time').value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-            }
-        }
-
         function switchTab(tab) {
             const pView = document.getElementById('view-pointeuse');
             const rView = document.getElementById('view-rapports');
@@ -770,7 +689,7 @@
                 rView.classList.remove('hidden');
                 rTab.className = active;
                 pTab.className = inactive;
-                renderHistory();
+                renderHistoryTab();
             }
         }
 
@@ -783,7 +702,8 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        updateUI();
+        // Initialisation immédiate
+        setTodayDate();
     </script>
 </body>
 </html>
